@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Pymovie.uz - O'zbek tilida filmlar va seriallarni onlayn tomosha qiling. Eng so'nggi va klassik seriallar, tezkor qidiruv va yuqori sifatli kontent.">
+    <meta name="keywords" content="O'zbek seriallari, Uzbek tilida filmlar, onlayn seriallar, filmlar tomosha qilish, pymovie.uz">
+    <meta name="author" content="Pymovie Team">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph Tags for Social Media -->
+    <meta property="og:title" content="Pymovie.uz - O'zbek tilida filmlar va seriallar">
+    <meta property="og:description" content="Eng so'nggi seriallar va filmlarni O'zbek tilida tomosha qiling. Pymovie.uz bilan tezkor va qulay qidiruv!">
+    <meta property="og:image" content="https://envs.sh/ow8.jpg">
+    <meta property="og:url" content="https://pymovie.uz">
+    <meta property="og:type" content="website">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="https://i.ibb.co/W4yN2hbF/20240414-173741.png">
+
+    <title>Pymovie.uz - O'zbek tilida filmlar va seriallar</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1e0f3a 25%, #3d2a6b 50%, #1e0f3a 75%, #0a0a0a 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            color: white;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 15% 20%, rgba(155, 89, 182, 0.2) 0%, transparent 45%),
+                radial-gradient(circle at 85% 80%, rgba(102, 51, 153, 0.15) 0%, transparent 45%),
+                radial-gradient(circle at 50% 50%, rgba(186, 85, 211, 0.1) 0%, transparent 60%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .app-container {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            padding-bottom: 100px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Status Bar */
+        .status-bar {
+            height: 44px;
+            background: transparent;
+        }
+
+        /* Search Bar */
+        .search-section {
+            padding: 16px 20px;
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(25px);
+            border-bottom: 1px solid rgba(138, 43, 226, 0.15);
+        }
+
+        .search-container {
+            position: relative;
+        }
+
+        .search-bar {
+            width: 100%;
+            height: 44px;
+            background: linear-gradient(135deg, rgba(138, 43, 226, 0.15) 0%, rgba(75, 0, 130, 0.1) 100%);
+            border: 1px solid rgba(138, 43, 226, 0.3);
+            border-radius: 22px;
+            backdrop-filter: blur(15px);
+            padding: 0 50px 0 20px;
+            color: white;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: 
+                0 4px 20px rgba(138, 43, 226, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .search-bar::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+            font-weight: 400;
+        }
+
+        .search-bar:focus {
+            border-color: rgba(138, 43, 226, 0.6);
+            background: linear-gradient(135deg, rgba(138, 43, 226, 0.2) 0%, rgba(75, 0, 130, 0.15) 100%);
+            box-shadow: 
+                0 8px 30px rgba(138, 43, 226, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
+            transform: scale(1.02);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(138, 43, 226, 0.8);
+            font-size: 18px;
+            pointer-events: none;
+        }
+
+        /* Content Area */
+        .content {
+            padding: 0 0 20px 0;
+            display: block;
+        }
+
+        .section {
+            margin-bottom: 40px;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease forwards;
+        }
+
+        .section:nth-child(1) { animation-delay: 0.1s; }
+        .section:nth-child(2) { animation-delay: 0.2s; }
+        .section:nth-child(3) { animation-delay: 0.3s; }
+
+        .section-header {
+            padding: 0 20px 16px 20px;
+            border-bottom: 1px solid rgba(155, 89, 182, 0.12);
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 4px;
+            letter-spacing: -0.5px;
+        }
+
+        .section-subtitle {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: 500;
+        }
+
+        /* Movie Cards */
+        .movies-scroll {
+            display: flex;
+            gap: 16px;
+            overflow-x: auto;
+            padding: 0 20px;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .movies-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        .movie-card {
+            min-width: 140px;
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.1) 0%, rgba(138, 43, 226, 0.05) 100%);
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid rgba(138, 43, 226, 0.2);
+            backdrop-filter: blur(20px);
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                0 2px 8px rgba(138, 43, 226, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .movie-card:active {
+            transform: scale(0.95) translateY(2px);
+        }
+
+        .movie-card:hover {
+            transform: translateY(-8px) scale(1.05);
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.4),
+                0 8px 30px rgba(138, 43, 226, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
+            border-color: rgba(138, 43, 226, 0.4);
+        }
+
+        .movie-poster {
+            width: 100%;
+            height: 180px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            border-radius: 16px 16px 0 0;
+        }
+
+        .movie-poster::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 80px;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.9));
+        }
+
+        .movie-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 16px 12px;
+            z-index: 2;
+        }
+
+        .movie-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 4px;
+            line-height: 1.2;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+        }
+
+        .episode-count {
+            font-size: 11px;
+            color: rgba(186, 85, 211, 0.95);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .watch-btn {
+            width: 100%;
+            max-width: 120px;
+            height: 36px;
+            background: linear-gradient(135deg, rgba(155, 89, 182, 0.95) 0%, rgba(102, 51, 153, 0.85) 100%);
+            border: none;
+            border-radius: 18px;
+            color: white;
+            font-weight: 700;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            backdrop-filter: blur(10px);
+            box-shadow: 
+                0 4px 15px rgba(155, 89, 182, 0.35),
+                inset 0 1px 0 rgba(255, 255, 255, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin: 8px auto 0;
+        }
+
+        .watch-btn:active {
+            transform: scale(0.95);
+            box-shadow: 
+                0 2px 8px rgba(155, 89, 182, 0.45),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        }
+
+        .movie-card-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Search Results */
+        .search-results {
+            padding: 20px;
+            display: none;
+        }
+
+        .search-results.active {
+            display: block;
+        }
+
+        .search-result-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: rgba(138, 43, 226, 0.1);
+            border-radius: 16px;
+            margin-bottom: 12px;
+            border: 1px solid rgba(138, 43, 226, 0.2);
+            backdrop-filter: blur(15px);
+            transition: transform 0.2s ease;
+            cursor: pointer;
+        }
+
+        .search-result-item:active {
+            transform: scale(0.95);
+        }
+
+        .search-result-item:hover {
+            transform: scale(1.02);
+            box-shadow: 
+                0 8px 20px rgba(138, 43, 226, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
+            border-color: rgba(138, 43, 226, 0.4);
+        }
+
+        .search-result-poster {
+            width: 60px;
+            height: 80px;
+            background-size: cover;
+            background-position: center;
+            border-radius: 8px;
+        }
+
+        .search-result-info {
+            flex: 1;
+        }
+
+        .search-result-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 4px;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+        }
+
+        .search-result-episodes {
+            font-size: 12px;
+            color: rgba(138, 43, 226, 0.8);
+            font-weight: 600;
+        }
+
+        /* 404 Page */
+        .error-404 {
+            display: none;
+            text-align: center;
+            padding: 40px 20px;
+            color: rgba(255, 255, 255, 0.9);
+            animation: fadeInUp 0.8s ease forwards;
+        }
+
+        .error-404.active {
+            display: block;
+        }
+
+        .error-404-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            color: rgba(155, 89, 182, 0.8);
+        }
+
+        .error-404-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+        }
+
+        .error-404-message {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Floating orbs */
+        .floating-orb {
+            position: fixed;
+            width: 3px;
+            height: 3px;
+            background: rgba(186, 85, 211, 0.7);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: float 8s infinite linear;
+            box-shadow: 0 0 12px rgba(186, 85, 211, 0.6);
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) translateX(0) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-10vh) translateX(100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .movie-card {
+                min-width: 120px;
+            }
+            .movie-poster {
+                height: 160px;
+            }
+            .movie-title {
+                font-size: 12px;
+            }
+            .watch-btn {
+                max-width: 100px;
+                font-size: 11px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Status Bar -->
+        <div class="status-bar"></div>
+
+        <!-- Search Section -->
+        <section class="search-section">
+            <h1 style="display: none;">Pymovie.uz - O'zbek tilida seriallar va filmlar</h1>
+            <div class="search-container">
+                <input type="text" class="search-bar" placeholder="Seriallar va filmlarni qidiring..." id="searchInput" aria-label="Seriallar va filmlarni qidirish">
+                <div class="search-icon">🔍</div>
+            </div>
+        </section>
+
+        <!-- Search Results -->
+        <section class="search-results" id="searchResults">
+            <!-- Search results will be populated here -->
+        </section>
+
+        <!-- Content -->
+        <main class="content" id="mainContent">
+            <section class="section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="display: inline-block; margin-right: 8px; vertical-align: text-bottom;">
+                            <path d="M13 10V3L4 14h7v7l9-11h-7z" fill="rgba(255, 107, 129, 1)"/>
+                        </svg>
+                        Eng so'nggi seriallar
+                    </h2>
+                    <div class="section-subtitle">Yangi qo'shilgan seriallar</div>
+                </div>
+                <div class="movies-scroll" id="latest-serials">
+                    <!-- Serials will be populated by JavaScript -->
+                </div>
+            </section>
+
+            <section class="section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="display: inline-block; margin-right: 8px; vertical-align: text-bottom;">
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="rgba(255, 214, 0, 1)"/>
+                        </svg>
+                        Klassik seriallar
+                    </h2>
+                    <div class="section-subtitle">Eng muhim va eski seriallar</div>
+                </div>
+                <div class="movies-scroll" id="oldest-serials">
+                    <!-- Serials will be populated by JavaScript -->
+                </div>
+            </section>
+
+            <section class="section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="display: inline-block; margin-right: 8px; vertical-align: text-bottom;">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" fill="rgba(52, 199, 89, 1)"/>
+                        </svg>
+                        Tasodifiy tanlovlar
+                    </h2>
+                    <div class="section-subtitle">Yangi seriallarni kashf eting</div>
+                </div>
+                <div class="movies-scroll" id="random-serials">
+                    <!-- Serials will be populated by JavaScript -->
+                </div>
+            </section>
+        </main>
+
+        <!-- 404 Error Page -->
+        <section class="error-404" id="error404">
+            <div class="error-404-icon">⚠️</div>
+            <h2 class="error-404-title">Sahifa topilmadi</h2>
+            <div class="error-404-message">Siz qidirayotgan sahifa mavjud emas. Yuqoridagi qidiruv paneli orqali seriallarni qidiring.</div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer class="tab-bar">
+        <div class="powered-by">Powered by Pyfot</div>
+    </footer>
+
+    <!-- Schema.org Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Pymovie.uz",
+        "url": "https://pymovie.uz",
+        "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://pymovie.uz/?q={search_term_string}",
+            "query-input": "required name=search_term_string"
+        },
+        "description": "Pymovie.uz - O'zbek tilida filmlar va seriallarni onlayn tomosha qilish uchun eng yaxshi platforma.",
+        "inLanguage": "uz"
+    }
+    </script>
+
+    <script>
+        // Ma'lumotlarni backenddan olish
+        async function fetchSerials(category) {
+            try {
+                const response = await fetch(`/api/serials/${category}`);
+                if (!response.ok) throw new Error(`Failed to fetch ${category} serials: ${response.status}`);
+                const serials = await response.json();
+                if (serials.error) throw new Error(serials.error);
+                return serials;
+            } catch (error) {
+                console.error(`Error fetching ${category} serials:`, error);
+                return [];
+            }
+        }
+
+        // Serial nomini 40 harfdan kesish
+        function truncateTitle(title) {
+            return title.length > 40 ? title.substring(0, 40) + '...' : title;
+        }
+
+        // Serial kartasini yaratish
+        function createSerialCard(serial) {
+            const truncatedTitle = truncateTitle(serial.title);
+            const episodes = serial.episodes || 'No episodes';
+            return `
+                <div class="movie-card-container">
+                    <a href="/serial/${serial.id}" class="movie-card" onclick="playSerial(${serial.id}, '${truncatedTitle}'); return false;">
+                        <div class="movie-poster" style="background-image: url('${serial.poster}')" alt="${truncatedTitle} posteri">
+                            <div class="movie-overlay">
+                                <div class="movie-title">${truncatedTitle}</div>
+                                <div class="episode-count">
+                                    <span>🎞️</span>
+                                    ${episodes}
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                    <button class="watch-btn" onclick="event.stopPropagation(); playSerial(${serial.id}, '${truncatedTitle}')">
+                        ▶ Tomosha qilish
+                    </button>
+                </div>
+            `;
+        }
+
+        // Seriallarni sahifaga joylashtirish
+        async function populateSerials() {
+            const latestSerials = await fetchSerials('latest');
+            const oldestSerials = await fetchSerials('oldest');
+            const randomSerials = await fetchSerials('random');
+
+            document.getElementById('latest-serials').innerHTML = 
+                latestSerials.map(createSerialCard).join('');
+            document.getElementById('oldest-serials').innerHTML = 
+                oldestSerials.map(createSerialCard).join('');
+            document.getElementById('random-serials').innerHTML = 
+                randomSerials.map(createSerialCard).join('');
+        }
+
+        // Serialni ijro etish
+        async function playSerial(id, title) {
+            console.log(`Attempting to play serial: ID=${id}, Title=${title}`);
+            navigator.vibrate && navigator.vibrate(50);
+            
+            const activeElement = event.target;
+            activeElement.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                activeElement.style.transform = 'scale(1)';
+            }, 150);
+
+            try {
+                const response = await fetch('/api/play', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: Number(id) })
+                });
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(`Failed to play serial: ${response.status} - ${errorData.error || 'Unknown error'}`);
+                }
+                const data = await response.json();
+                if (data.error) throw new Error(data.error);
+                
+                console.log(`Navigating to link: ${data.link}`);
+                window.location.href = data.link;
+            } catch (error) {
+                console.error('Error playing serial:', error);
+                alert(`Error playing ${title}: ${error.message}`);
+            }
+        }
+
+        // Qidiruv funksiyasi
+        async function searchSerials(query) {
+            const searchResults = document.getElementById('searchResults');
+            const mainContent = document.getElementById('mainContent');
+            const error404 = document.getElementById('error404');
+
+            if (query.trim() === '') {
+                searchResults.classList.remove('active');
+                mainContent.style.display = 'block';
+                error404.classList.remove('active');
+                searchResults.innerHTML = '';
+                console.log('Empty query: Showing main content');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/serials/search?query=${encodeURIComponent(query)}`);
+                if (!response.ok) throw new Error(`Search failed: ${response.status}`);
+                const results = await response.json();
+                if (results.error) throw new Error(results.error);
+
+                mainContent.style.display = 'none';
+                searchResults.classList.add('active');
+                error404.classList.remove('active');
+
+                if (results.length === 0) {
+                    searchResults.innerHTML = `
+                        <div style="text-align: center; padding: 40px 20px; color: rgba(255, 255, 255, 0.6);">
+                            <div style="font-size: 48px; margin-bottom: 16px;">🔍</div>
+                            <h2 style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">Hech narsa topilmadi</h2>
+                            <div style="font-size: 14px;">Boshqa serialni qidirib ko'ring</div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                searchResults.innerHTML = results.map(serial => `
+                    <a href="/serial/${serial.id}" class="search-result-item" onclick="playSerial(${serial.id}, '${truncateTitle(serial.title)}'); return false;">
+                        <div class="search-result-poster" style="background-image: url('${serial.poster}')" alt="${truncateTitle(serial.title)} posteri"></div>
+                        <div class="search-result-info">
+                            <div class="search-result-title">${truncateTitle(serial.title)}</div>
+                            <div class="search-result-episodes">🎞️ ${serial.episodes || 'No episodes'}</div>
+                        </div>
+                    </a>
+                `).join('');
+            } catch (error) {
+                console.error('Error searching serials:', error);
+                searchResults.innerHTML = `
+                    <div style="text-align: center; padding: 40px 20px; color: rgba(255, 255, 255, 0.6);">
+                        <div style="font-size: 48px; margin-bottom: 16px;">⚠️</div>
+                        <h2 style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">Qidiruvda xato</h2>
+                        <div style="font-size: 14px;">Iltimos, keyinroq qayta urinib ko'ring: ${error.message}</div>
+                    </div>
+                `;
+                searchResults.classList.add('active');
+                mainContent.style.display = 'none';
+                error404.classList.remove('active');
+            }
+        }
+
+        // Floating orbs yaratish
+        function createFloatingOrbs() {
+            for (let i = 0; i < 3; i++) {
+                setTimeout(() => {
+                    const orb = document.createElement('div');
+                    orb.className = 'floating-orb';
+                    orb.style.left = Math.random() * window.innerWidth + 'px';
+                    orb.style.animationDelay = Math.random() * 8 + 's';
+                    orb.style.animationDuration = (6 + Math.random() * 4) + 's';
+                    document.body.appendChild(orb);
+                    
+                    setTimeout(() => {
+                        orb.remove();
+                    }, 8000);
+                }, i * 2000);
+            }
+        }
+
+        // Ilovani ishga tushirish
+        document.addEventListener('DOMContentLoaded', () => {
+            const show404 = {{ show_404 | default(false) | tojson | safe }};
+            const mainContent = document.getElementById('mainContent');
+            const searchResults = document.getElementById('searchResults');
+            const error404 = document.getElementById('error404');
+
+            if (show404) {
+                mainContent.style.display = 'none';
+                searchResults.classList.remove('active');
+                error404.classList.add('active');
+            } else {
+                populateSerials();
+            }
+
+            createFloatingOrbs();
+            setInterval(createFloatingOrbs, 6000);
+            
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', (e) => {
+                searchSerials(e.target.value);
+            });
+        });
+
+        // Touch interactions for smooth scrolling
+        document.querySelectorAll('.movies-scroll').forEach(container => {
+            let isDown = false;
+            let startX;
+            let scrollLeft;
+
+            container.addEventListener('touchstart', (e) => {
+                isDown = true;
+                startX = e.touches[0].pageX - container.offsetLeft;
+                scrollLeft = container.scrollLeft;
+                container.style.scrollBehavior = 'auto';
+            });
+
+            container.addEventListener('touchend', () => {
+                isDown = false;
+                container.style.scrollBehavior = 'smooth';
+            });
+
+            container.addEventListener('touchmove', (e) => {
+                if (!isDown) return;
+                e.preventDefault();
+                const x = e.touches[0].pageX - container.offsetLeft;
+                const walk = (x - startX) * 2;
+                container.scrollLeft = scrollLeft - walk;
+            });
+        });
+    </script>
+</body>
+</html>
